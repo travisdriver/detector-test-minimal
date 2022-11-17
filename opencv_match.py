@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 
-def matching_runtime_test(num_features=500, dim_desc=128, norm_type=cv2.NORM_L2, num_trials=1000, burn_in=10):
+def matching_runtime_test(num_features=500, dim_desc=128, norm_type=cv2.NORM_L2, num_trials=50, burn_in=10):
 
     # Create dummy descriptors.
     desc1 = np.random.rand(num_features, dim_desc).astype(np.float32)
@@ -57,6 +57,28 @@ if __name__ == "__main__":
 
     # Test full precision 128-dimensional descriptors, i.e., SIFT & DidymosNet
     num_features = 1000
+    dim_desc = 128
+    norm_type = cv2.NORM_L2
+    print(f"Testing d={dim_desc}, n={num_features}, norm_type={norm_type}")
+    matching_runtime_test(num_features, dim_desc, norm_type)
+    print("\n")
+
+    # Test full precision 256-dimensional descriptors, i.e., SuperPoint
+    dim_desc = 256
+    norm_type = cv2.NORM_L2
+    print(f"Testing d={dim_desc}, n={num_features}, norm_type={norm_type}")
+    matching_runtime_test(num_features, dim_desc, norm_type)
+    print("\n")
+
+    # Test binary 256-dimensional descriptors, i.e., ORB & DidymosNet
+    dim_desc = 256
+    norm_type = cv2.NORM_HAMMING
+    print(f"Testing d={dim_desc}, n={num_features}, norm_type={norm_type}")
+    matching_runtime_test(num_features, dim_desc, norm_type)
+    print("\n")
+
+    # Test full precision 128-dimensional descriptors, i.e., SIFT & DidymosNet
+    num_features = 5000
     dim_desc = 128
     norm_type = cv2.NORM_L2
     print(f"Testing d={dim_desc}, n={num_features}, norm_type={norm_type}")

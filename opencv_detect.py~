@@ -20,8 +20,8 @@ def extract_patches(img, kpts, N, mag_factor):
         a = 0
 
         s = mag_factor * s / N
-        cos = 1 # math.cos(a * math.pi / 180.0)
-        sin = 0 # math.sin(a * math.pi / 180.0)
+        cos = math.cos(a * math.pi / 180.0)
+        sin = math.sin(a * math.pi / 180.0)
 
         M = np.matrix(
             [
@@ -43,9 +43,9 @@ def detector_runtime_test(img, detector):
         _t0 = timeit.default_timer()
         keypoints = detector.detect(img, None)
         _t1 = timeit.default_timer()
-        # print(len(keypoints))
-        # if len(keypoints) > 0:
-        _ = extract_patches(img, keypoints, 32, mag_factor=16)
+        print(len(keypoints))
+        if len(keypoints) > 0:
+            _ = extract_patches(img, keypoints, 32, mag_factor=12)
         _t2 = timeit.default_timer()
         if i < 10:
             continue

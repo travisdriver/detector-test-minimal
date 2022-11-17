@@ -131,6 +131,7 @@ class SuperPoint(nn.Module):
 
         path = "superpoint_v1.pth"
         self.load_state_dict(torch.load(str(path)))
+        print("loaded weights")
 
         mk = self.config["max_keypoints"]
         if mk == 0 or mk < -1:
@@ -140,8 +141,11 @@ class SuperPoint(nn.Module):
 
     def forward(self, data):
         """Compute keypoints, scores, descriptors for image"""
+        print("extered forward step")
         # Shared Encoder
+        print(data["image"].shape)
         x = self.relu(self.conv1a(data["image"]))
+        print("first conv")
         x = self.relu(self.conv1b(x))
         x = self.pool(x)
         x = self.relu(self.conv2a(x))
@@ -154,6 +158,7 @@ class SuperPoint(nn.Module):
         x = self.relu(self.conv4b(x))
 
         # Compute the dense keypoint scores
+        print("computing scores")
         cPa = self.relu(self.convPa(x))
         scores = self.convPb(cPa)
         scores = torch.nn.functional.softmax(scores, 1)[:, :-1]
@@ -163,6 +168,7 @@ class SuperPoint(nn.Module):
         scores = simple_nms(scores, self.config["nms_radius"])
 
         # Extract keypoints
+        print("extracting keypoints")
         keypoints = [torch.nonzero(s > self.config["keypoint_threshold"]) for s in scores]
         scores = [s[tuple(k.t())] for s, k in zip(scores, keypoints)]
 
@@ -177,10 +183,11 @@ class SuperPoint(nn.Module):
                 zip(*[top_k_keypoints(k, s, self.config["max_keypoints"]) for k, s in zip(keypoints, scores)])
             )
 
-        # Convert (h, w) to (x, y)
-        keypoints = [torch.flip(k, [1]).float() for k in keypoints]
+        # # Convert (h, w) to (x, y)
+        # keypoints = [torch.flip(k, [1]).float() for k in keypoints]
 
         # Compute the dense descriptors
+        print("computing descriptors")
         cDa = self.relu(self.convDa(x))
         descriptors = self.convDb(cDa)
         descriptors = torch.nn.functional.normalize(descriptors, p=2, dim=1)

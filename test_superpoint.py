@@ -7,12 +7,14 @@ import torch
 from superpoint import SuperPoint
 
 
-img = cv2.cvtColor(cv2.imread("ceres_test.png"), cv2.COLOR_BGR2GRAY)[None, None, ...]
-img = torch.from_numpy(img.astype(np.float32) / 255.0)
+# img = cv2.cvtColor(cv2.imread("ceres_test.png"), cv2.COLOR_BGR2GRAY)[None, None, ...]
+# img = torch.from_numpy(img.astype(np.float32) / 255.0)
+img = torch.randn((1, 1, 1024, 1024)).cpu()
 
 print(img.shape)
 
 net = SuperPoint({}).cpu()
+net.eval()
 runtimes = []
 for _ in range(10):
     _t0 = timeit.default_timer()
