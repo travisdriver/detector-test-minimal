@@ -4,7 +4,7 @@ import math
 import cv2
 import numpy as np
 
-NUM_ITERATIONS = 100
+NUM_ITERATIONS = 20
 
 
 def extract_patches(img, kpts, N, mag_factor):
@@ -36,39 +36,44 @@ def extract_patches(img, kpts, N, mag_factor):
     return patches
 
 
-def detector_runtime_test(img, detector):
+def detector_runtime_test(img, detector, mag_factor=16):
     t_detect = []
     t_extract = []
     for i in range(NUM_ITERATIONS):
-        _t0 = timeit.default_timer()
+        _t0 = timeit.default_timer() * 1000
         keypoints = detector.detect(img, None)
-        _t1 = timeit.default_timer()
+        _t1 = timeit.default_timer() * 1000
         # print(len(keypoints))
         # if len(keypoints) > 0:
-        _ = extract_patches(img, keypoints, 32, mag_factor=16)
-        _t2 = timeit.default_timer()
+        patches = extract_patches(img, keypoints, 32, mag_factor=mag_factor)
+        _t2 = timeit.default_timer() * 1000
         if i < 10:
             continue
         t_detect.append(_t1 - _t0)
         t_extract.append(_t2 - _t1)
+        print(_t1 - _t0)
+        print(_t2 - _t1)
+        print(np.array(patches).shape)
+        print(keypoints[0].size)
     print(f"Detected {len(keypoints)} keypoints in {np.mean(t_detect)}")
     print(f"Extracted {len(keypoints)} patches in {np.mean(t_extract)}")
 
 
 if __name__ == "__main__":
     img = cv2.cvtColor(cv2.imread("ceres_test.png"), cv2.COLOR_BGR2GRAY)[..., np.newaxis]
+    print(img.shape)
 
-    # Test SIFT.
-    print("\nTESTING SIFT")
-    for nfeatures in [500, 1000, 5000]:
-        detector = cv2.SIFT_create(nfeatures=nfeatures)
-        detector_runtime_test(img, detector)
-        del detector
+    # # Test SIFT.
+    # print("\nTESTING SIFT")
+    # for nfeatures in [500, 1000, 5000]:
+    #     detector = cv2.SIFT_create(nfeatures=nfeatures)
+    #     detector_runtime_test(img, detector, mag_factor=16)
+    #     del detector
 
     # Test ORB.
     print("\nTESTING ORB")
     for nfeatures in [500, 1000, 5000]:
         detector = cv2.ORB_create(nfeatures=nfeatures)
-        detector_runtime_test(img, detector)
+        detector_runtime_test(img, detector, mag_factor=1)
         del detector
 
